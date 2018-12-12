@@ -21,6 +21,14 @@ module Solitaire2 where
           pcols = map (\f -> if(isAce f) then f else pCard f) hcols
           newM = (fnds, addToColumn cols x, delete x res)
   
+  columnsToReserves :: EOBoard -> [EOBoard] -> Columns -> [EOBoard]
+  columnsToReserves _ m [] = m
+  columnsToReserves (fnds,cols,res) moves (x:xs)
+    | length res < 8 = columnsToReserves (fnds,cols,res) (moves ++ [newMove]) xs
+    | otherwise = columnsToReserves (fnds,cols,res) moves xs
+    where (y:ys) = x
+          newMove = (fnds, cols, res ++ [y])
+  
   {-
     addToColumn
     Takes the columns and a new card.
@@ -39,6 +47,15 @@ module Solitaire2 where
     | otherwise = def
     where def = (y:ys):addToColumn xs c -- default recursive call
           newHead = c:(y:ys) -- new head with card added
+          
+          
+  removeFromColumn :: Columns -> Card -> Columns
+  removeFromColumn [] _ = []
+  removeFromColumn ((y:ys):xs) c
+    | y == c = ys:xs
+    | otherwise = removeFromColumn xs c
+          
+  
   
   chooseMove :: EOBoard -> Maybe EOBoard
   chooseMove board = Just (head (findMoves board))
